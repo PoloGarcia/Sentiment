@@ -3,6 +3,7 @@ from pprint import pprint
 import string
 import oauth2 as oauth
 import urllib2 as urllib
+import re
 
 api_key = "zKmzrkwmZsnp4UxN6wafDomUr"
 api_secret = "VTHof2Q2BgPAHodIY1zeoEKG8eKvt3LRmB8rFdZwH9Vtqjiw9t"
@@ -68,10 +69,12 @@ def parseTweets(query,outputFile,parsedFile):
 
 	jsonFile = open(parsedFile,'w+')
 	for key in data['statuses']:
-		texto = filter(lambda x: x in string.printable, key['text'].strip())
+		my_str = key['text'].replace('\n', ' ').replace('\r', '')
+		texto = filter(lambda x: x in string.printable, my_str)
+		print texto
 		jsonFile.write(str(key['user']['id']) +'|'+ texto + '\n')
 	jsonFile.close()
 
 #Main()
-#parseTweets('Bernie%20Sanders','bernard.txt','jsonBernie.data')
-#parseTweets('Hillary%20Clinton','hillary.txt','jsonHillary.data')
+parseTweets('Bernie%20Sanders','bernard.txt','jsonBernie.data')
+parseTweets('Hillary%20Clinton','hillary.txt','jsonHillary.data')
