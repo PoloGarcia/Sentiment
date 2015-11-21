@@ -73,5 +73,5 @@ def parseTweets(query,outputFile,parsedFile):
 	jsonFile.close()
 
 #Main()
-#parseTweets('Bernie%20Sanders','bernard.txt','jsonBernie.json')
-#parseTweets('Hillary%20Clinton','hillary.txt','jsonHillary.json')
+#parseTweets('Bernie%20Sanders','bernard.txt','jsonBernie.data')
+#parseTweets('Hillary%20Clinton','hillary.txt','jsonHillary.data')
