@@ -1,7 +1,6 @@
 import json
 from pprint import pprint
 import string
-import twitterstream
 import oauth2 as oauth
 import urllib2 as urllib
 
@@ -74,5 +73,5 @@ def parseTweets(query,outputFile,parsedFile):
 	jsonFile.close()
 
 #Main()
-parseTweets('Bernie%20Sanders','bernard.txt','jsonBernie.json')
-parseTweets('Hillary%20Clinton','hillary.txt','jsonHillary.json')
+#parseTweets('Bernie%20Sanders','bernard.txt','jsonBernie.json')
+#parseTweets('Hillary%20Clinton','hillary.txt','jsonHillary.json')
