@@ -79,12 +79,18 @@ def parseDataSet(file,separatror):
 	file = open(file,'r')
 	lines = file.readlines()[1:]
 	sentimentDic = {}
+	cachedStopWords = stopwords.words("english")
+	exclude = set(string.punctuation)
 	for line in lines:
 		data = line.rstrip().split(separatror)
 		sentimentDic[data[0]]={}
 		sentimentDic[data[0]]['sentiment']=data[1]
-		sentimentDic[data[0]]['text']=data[3]
+		text = data[3]
+		text = ''.join(ch for ch in text if ch not in exclude).lower()
+		text = ' '.join([word for word in text.split() if word not in cachedStopWords])
+		sentimentDic[data[0]]['text']= text.split()
 	return sentimentDic
+
 #Main()
 #parseTweets('Bernie%20Sanders','bernard.txt','jsonBernie.data')
 #parseTweets('Hillary%20Clinton','hillary.txt','jsonHillary.data')
