@@ -1,8 +1,10 @@
 import json
+import math
 from pprint import pprint
 import string
 import oauth2 as oauth
 import urllib2 as urllib
+from nltk.corpus import stopwords
 import re
 
 api_key = "zKmzrkwmZsnp4UxN6wafDomUr"
@@ -53,7 +55,7 @@ def twitterreq(url, method, parameters):
 	return response
 
 def fetchsamples(query,filename):
-	url = 'https://api.twitter.com/1.1/search/tweets.json?q='+query+'&lang=en&count=100&result_type=mixed'
+	url = 'https://api.twitter.com/1.1/search/tweets.json?q='+query+'&lang=en&count=15&result_type=popular'
 	parameters = []
 	response = twitterreq(url, "GET", parameters)
 	f = open(filename,'w+')
@@ -77,21 +79,114 @@ def parseTweets(query,outputFile,parsedFile):
 
 def parseDataSet(file,separatror):
 	file = open(file,'r')
-	lines = file.readlines()[1:]
+	allLines = file.readlines()[1:]
+	subset_size = int(math.ceil(len(allLines) * 0.8))
+	lines = allLines[:subset_size]
 	sentimentDic = {}
 	cachedStopWords = stopwords.words("english")
+	for idx, word in enumerate(cachedStopWords):
+		cachedStopWords[idx] = word.encode('ascii', 'ignore')
 	exclude = set(string.punctuation)
 	for line in lines:
 		data = line.rstrip().split(separatror)
 		sentimentDic[data[0]]={}
 		sentimentDic[data[0]]['sentiment']=data[1]
-		text = data[3]
+		text = str(data[3])
 		text = ''.join(ch for ch in text if ch not in exclude).lower()
 		text = ' '.join([word for word in text.split() if word not in cachedStopWords])
 		sentimentDic[data[0]]['text']= text.split()
-	return sentimentDic
+	file.close()
+
+	return sentimentDic, subset_size
+
+def extract_features(tweet):
+		cachedStopWords = stopwords.words("english")
+		exclude = set(string.punctuation)
+		for idx, word in enumerate(cachedStopWords):
+			cachedStopWords[idx] = word.encode('ascii', 'ignore')
+		text = tweet
+		text = ''.join(ch for ch in text if ch not in exclude).lower()
+		text = ' '.join([word for word in text.split() if word not in cachedStopWords])
+		feature_vector = text.split()
+
+		return feature_vector
+
+def feature_probability(feature, sentiment):
+	times = 0
+	words = 0
+	for key in sentimentDic.keys():
+		if sentimentDic[key]['sentiment'] == sentiment and feature in sentimentDic[key]['text']:
+			times += 1
+
+	for key in sentimentDic.keys():
+		words += len(sentimentDic[key]['text'])
+
+	return times / words
+
+
+def classify_tweet(feature_vector):
+	# P(positive|tweet) = P(tweet|positive)*P(positive)
+	# P(tweet|positive) = P(T1|positive)*P(T2|positive)*...*(Tn|positive)
+
+	p_tweet_positive = 1
+	for feature in feature_vector:
+		p_tweet_positive *= feature_probability(feature, "1")
+
+	p_tweet_negative = 1
+	for feature in feature_vector:
+		p_tweet_negative *= feature_probability(feature, "0")
+
+	p_positive = 0.5 * p_tweet_positive
+	p_negative = 0.5 * p_tweet_negative
+
+	if p_positive > p_negative:
+		return "1"
+	else:
+		return "0"
+
+def test(filename, separator, subset_size):
+	successes = 0
+	failures = 0
+	file = open(filename, 'r')
+	lines = file.readlines()[:subset_size + 1]
+	cachedStopWords = stopwords.words("english")
+	exclude = set(string.punctuation)
+
+	for idx, word in enumerate(cachedStopWords):
+		cachedStopWords[idx] = word.encode('ascii', 'ignore')
+
+	for line in lines:
+		data = line.rstrip().split(separator)
+		features = extract_features(str(data[3]))
+		label = classify_tweet(features)
+		sentiment = data[1]
+
+		if sentiment == label:
+			print "successe"
+			successes += 1
+		else:
+			print "failure"
+			failures += 1
+
+	return float(successes) / float(successes + failures)
 
 #Main()
-#parseTweets('Bernie%20Sanders','bernard.txt','jsonBernie.data')
+parseTweets('Hunger%20Games','1.txt','1.data')
 #parseTweets('Hillary%20Clinton','hillary.txt','jsonHillary.data')
-sentimentDic = parseDataSet('Dataset.csv',',')
+sentimentDic, subset_size = parseDataSet('Dataset.csv',',')
+
+tweet = "Bernie Sanders is the best of the best"
+tweets = open('1.data','r')
+lines = tweets.readlines()
+
+for tweet in lines:
+	data = tweet.rstrip().split('|')
+	print data[1]
+	features = extract_features(str(data[1]))
+	print features
+	label = classify_tweet(features)
+
+	if label == '1':
+		print 'positive'
+	else:
+		print 'negative'
