@@ -75,6 +75,17 @@ def parseTweets(query,outputFile,parsedFile):
 		jsonFile.write(str(key['user']['id']) +'|'+ texto + '\n')
 	jsonFile.close()
 
+def parseDataSet(file,separatror):
+	file = open(file,'r')
+	lines = file.readlines()[1:]
+	sentimentDic = {}
+	for line in lines:
+		data = line.rstrip().split(separatror)
+		sentimentDic[data[0]]={}
+		sentimentDic[data[0]]['sentiment']=data[1]
+		sentimentDic[data[0]]['text']=data[3]
+	return sentimentDic
 #Main()
 #parseTweets('Bernie%20Sanders','bernard.txt','jsonBernie.data')
 #parseTweets('Hillary%20Clinton','hillary.txt','jsonHillary.data')
+sentimentDic = parseDataSet('Dataset.csv',',')
