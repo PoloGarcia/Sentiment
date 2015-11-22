@@ -113,39 +113,45 @@ def extract_features(tweet):
 		return feature_vector
 
 def feature_probability(feature, sentiment):
-	times = 0
-	words = 0
+	times = 1
+	words = 1
+	v = 0
 	for key in sentimentDic.keys():
-		if sentimentDic[key]['sentiment'] == sentiment and feature in sentimentDic[key]['text']:
-			times += 1
+		v += len(sentimentDic[key]['text'])
+		if sentimentDic[key]['sentiment'] == sentiment:
+			words += len(sentimentDic[key]['text'])
+			if feature in sentimentDic[key]['text']:
+				times += 1
 
-	for key in sentimentDic.keys():
-		words += len(sentimentDic[key]['text'])
-
-	return times / words
+	print v
+	return float(times) / float(v + words)
 
 
 def classify_tweet(feature_vector):
 	# P(positive|tweet) = P(tweet|positive)*P(positive)
 	# P(tweet|positive) = P(T1|positive)*P(T2|positive)*...*(Tn|positive)
 
-	p_tweet_positive = 1
+	p_tweet_positive = 0
 	for feature in feature_vector:
-		p_tweet_positive *= feature_probability(feature, "4")
+		prob_f = feature_probability(feature, "4")
+		p_tweet_positive += prob_f
 
-	p_tweet_negative = 1
+	p_tweet_negative = 0
 	for feature in feature_vector:
-		p_tweet_negative *= feature_probability(feature, "0")
+		prob_f = feature_probability(feature, "0")
+		p_tweet_negative += prob_f
 
-	p_tweet_neutral = 1
+	p_tweet_neutral = 0
 	for feature in feature_vector:
-		p_tweet_neutral *= feature_probability(feature, "2")
+		prob_f = feature_probability(feature, "2")
+		p_tweet_neutral += prob_f
 
-	p_positive = 0.5 * p_tweet_positive
-	p_negative = 0.5 * p_tweet_negative
-	p_neutral = 0.5 * p_tweet_neutral
+	p_positive = 0.33 + p_tweet_positive
+	p_negative = 0.33 + p_tweet_negative
+	p_neutral = 0.33 + p_tweet_neutral
 
 	array = [p_positive,p_negative,p_neutral]
+	#print array
 	index = array.index(max(array))
 
 	if index == 0:
@@ -168,27 +174,31 @@ def test(filename, separator, subset_size):
 
 	for line in lines:
 		data = line.rstrip().split(separator)
-		features = extract_features(str(data[3]))
+		features = extract_features(str(data[5]))
+		print features
 		label = classify_tweet(features)
+		print label
 		sentiment = data[0].replace('"', '').strip()
 		if sentiment == label:
+			print "success"
 			successes += 1
 		else:
+			print "fail...cometiste un fail"
 			failures += 1
 
 	return float(successes) / float(successes + failures)
 
 #Main()
-#parseTweets('Donald%20Trump','1.txt','1.data')
+parseTweets('Donald%20Trump','1.txt','1.data')
 #parseTweets('Hunger%20Games','2.txt','2.data')
 sentimentDic, subset_size = parseDataSet('testdata.manual.2009.06.14.csv',',')
 
-tweet = "Bernie Sanders is the best of the best"
-tweets = open('1.data','r')
+tweet = "my car is shit"
+tweets = open('2.data','r')
 lines = tweets.readlines()
 
-print test('testdata.manual.2009.06.14.csv',',',subset_size)
-
+test('testdata.manual.2009.06.14.csv',',',subset_size)
+"""
 for tweet in lines:
 	data = tweet.rstrip().split('|')
 	print data[1]
@@ -201,3 +211,4 @@ for tweet in lines:
 		print 'neutral'
 	else: 
 		print 'negative'
+"""
