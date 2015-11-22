@@ -53,7 +53,7 @@ def twitterreq(url, method, parameters):
 	return response
 
 def fetchsamples(query,filename):
-	url = 'https://api.twitter.com/1.1/search/tweets.json?q='+query+'&lang=en&result_type=mixed&count=100'
+	url = 'https://api.twitter.com/1.1/search/tweets.json?q='+query+'&lang=en&count=100&result_type=mixed'
 	parameters = []
 	response = twitterreq(url, "GET", parameters)
 	f = open(filename,'w+')
@@ -70,11 +70,11 @@ def parseTweets(query,outputFile,parsedFile):
 	jsonFile = open(parsedFile,'w+')
 	for key in data['statuses']:
 		my_str = key['text'].replace('\n', ' ').replace('\r', '')
-		texto = filter(lambda x: x in string.printable, my_str)
-		print texto
+		result = re.sub(r"http\S+", "", my_str)
+		texto = filter(lambda x: x in string.printable, result)
 		jsonFile.write(str(key['user']['id']) +'|'+ texto + '\n')
 	jsonFile.close()
 
 #Main()
-#parseTweets('Bernie%20Sanders','bernard.txt','jsonBernie.data')
-#parseTweets('Hillary%20Clinton','hillary.txt','jsonHillary.data')
+parseTweets('Bernie%20Sanders','bernard.txt','jsonBernie.data')
+parseTweets('Hillary%20Clinton','hillary.txt','jsonHillary.data')
