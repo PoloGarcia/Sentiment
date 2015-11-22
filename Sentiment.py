@@ -89,12 +89,13 @@ def parseDataSet(file,separatror):
 	exclude = set(string.punctuation)
 	for line in lines:
 		data = line.rstrip().split(separatror)
-		sentimentDic[data[0]]={}
-		sentimentDic[data[0]]['sentiment']=data[1]
-		text = str(data[3])
+		sentimentDic[data[1]]={}
+		sentimentDic[data[1]]['sentiment']= data[0].replace('"', '').strip()
+		text = str(data[5])
+		text = re.sub(r"(?:\@|https?\://)\S+", "", text)
 		text = ''.join(ch for ch in text if ch not in exclude).lower()
 		text = ' '.join([word for word in text.split() if word not in cachedStopWords])
-		sentimentDic[data[0]]['text']= text.split()
+		sentimentDic[data[1]]['text']= text.split()
 	file.close()
 
 	return sentimentDic, subset_size
@@ -130,19 +131,29 @@ def classify_tweet(feature_vector):
 
 	p_tweet_positive = 1
 	for feature in feature_vector:
-		p_tweet_positive *= feature_probability(feature, "1")
+		p_tweet_positive *= feature_probability(feature, "4")
 
 	p_tweet_negative = 1
 	for feature in feature_vector:
 		p_tweet_negative *= feature_probability(feature, "0")
 
+	p_tweet_neutral = 1
+	for feature in feature_vector:
+		p_tweet_neutral *= feature_probability(feature, "2")
+
 	p_positive = 0.5 * p_tweet_positive
 	p_negative = 0.5 * p_tweet_negative
+	p_neutral = 0.5 * p_tweet_neutral
 
-	if p_positive > p_negative:
-		return "1"
-	else:
+	array = [p_positive,p_negative,p_neutral]
+	index = array.index(max(array))
+
+	if index == 0:
+		return "4"
+	elif index == 1:
 		return "0"
+	else:
+		return "2"
 
 def test(filename, separator, subset_size):
 	successes = 0
@@ -159,34 +170,34 @@ def test(filename, separator, subset_size):
 		data = line.rstrip().split(separator)
 		features = extract_features(str(data[3]))
 		label = classify_tweet(features)
-		sentiment = data[1]
-
+		sentiment = data[0].replace('"', '').strip()
 		if sentiment == label:
-			print "successe"
 			successes += 1
 		else:
-			print "failure"
 			failures += 1
 
 	return float(successes) / float(successes + failures)
 
 #Main()
-parseTweets('Hunger%20Games','1.txt','1.data')
-#parseTweets('Hillary%20Clinton','hillary.txt','jsonHillary.data')
-sentimentDic, subset_size = parseDataSet('Dataset.csv',',')
+#parseTweets('Donald%20Trump','1.txt','1.data')
+#parseTweets('Hunger%20Games','2.txt','2.data')
+sentimentDic, subset_size = parseDataSet('testdata.manual.2009.06.14.csv',',')
 
 tweet = "Bernie Sanders is the best of the best"
 tweets = open('1.data','r')
 lines = tweets.readlines()
 
+print test('testdata.manual.2009.06.14.csv',',',subset_size)
+
 for tweet in lines:
 	data = tweet.rstrip().split('|')
 	print data[1]
 	features = extract_features(str(data[1]))
-	print features
 	label = classify_tweet(features)
 
-	if label == '1':
+	if label == "4":
 		print 'positive'
-	else:
+	elif label == "2":
+		print 'neutral'
+	else: 
 		print 'negative'
