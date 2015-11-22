@@ -72,7 +72,7 @@ def parseTweets(query,outputFile,parsedFile):
 	jsonFile = open(parsedFile,'w+')
 	for key in data['statuses']:
 		my_str = key['text'].replace('\n', ' ').replace('\r', '')
-		result = re.sub(r"http\S+", "", my_str)
+		result = re.sub(r"(?:\@|https?\://)\S+", "", my_str)
 		texto = filter(lambda x: x in string.printable, result)
 		jsonFile.write(str(key['user']['id']) +'|'+ texto + '\n')
 	jsonFile.close()
