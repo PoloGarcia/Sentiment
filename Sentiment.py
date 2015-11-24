@@ -189,16 +189,19 @@ sentimentDic, subset_size = parseDataSet('testdata.manual.2009.06.14.csv',',')
 
 print '\n'
 print  'Test accuracy on a split 80/20: '+ str(test('testdata.manual.2009.06.14.csv',',',subset_size))
-tweet = raw_input('What you want to tweet?\n')
 
-print '============================================================='
-feeling = classify_tweet(extract_features(tweet)) 
-if feeling == '4':
-	print 'feeling positive'
-elif feeling == '2':
-	print 'feeling neutral'
-else: 
-	print 'feeling negative, chill out dude'
+while (True):
+	tweet = raw_input('What you want to tweet?\n')
+
+	print '============================================================='
+	feeling = classify_tweet(extract_features(tweet)) 
+	if feeling == '4':
+		print 'feeling positive'
+	elif feeling == '2':
+		print 'feeling neutral'
+	else: 
+		print 'feeling negative, chill out dude'
+	print '============================================================='
 
 """"
 word = raw_input('Type the topic you want to search on twitter\n')
