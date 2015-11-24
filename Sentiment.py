@@ -123,7 +123,6 @@ def feature_probability(feature, sentiment):
 			if feature in sentimentDic[key]['text']:
 				times += 1
 
-	print v
 	return float(times) / float(v + words)
 
 
@@ -175,40 +174,51 @@ def test(filename, separator, subset_size):
 	for line in lines:
 		data = line.rstrip().split(separator)
 		features = extract_features(str(data[5]))
-		print features
 		label = classify_tweet(features)
-		print label
 		sentiment = data[0].replace('"', '').strip()
 		if sentiment == label:
-			print "success"
 			successes += 1
 		else:
-			print "fail...cometiste un fail"
 			failures += 1
 
 	return float(successes) / float(successes + failures)
 
 #Main()
-parseTweets('Donald%20Trump','1.txt','1.data')
 #parseTweets('Hunger%20Games','2.txt','2.data')
 sentimentDic, subset_size = parseDataSet('testdata.manual.2009.06.14.csv',',')
 
-tweet = "my car is shit"
-tweets = open('2.data','r')
+print '\n'
+print  'Test accuracy on a split 80/20: '+ str(test('testdata.manual.2009.06.14.csv',',',subset_size))
+tweet = raw_input('What you want to tweet?\n')
+
+print '============================================================='
+feeling = classify_tweet(extract_features(tweet)) 
+if feeling == '4':
+	print 'feeling positive'
+elif feeling == '2':
+	print 'feeling neutral'
+else: 
+	print 'feeling negative, chill out dude'
+
+""""
+word = raw_input('Type the topic you want to search on twitter\n')
+word = urllib.quote(word, safe='')
+parseTweets(word,'1.txt','1.data')
+tweets = open('1.data','r')
 lines = tweets.readlines()
 
-test('testdata.manual.2009.06.14.csv',',',subset_size)
-"""
 for tweet in lines:
 	data = tweet.rstrip().split('|')
+	print '---------------------------------------------'
 	print data[1]
 	features = extract_features(str(data[1]))
 	label = classify_tweet(features)
 
 	if label == "4":
-		print 'positive'
+		print 'Feeling: positive'
 	elif label == "2":
-		print 'neutral'
+		print 'Feeling: neutral'
 	else: 
-		print 'negative'
+		print 'Feeling: negative'
+	print '---------------------------------------------'
 """
