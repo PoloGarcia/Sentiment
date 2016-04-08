@@ -7,10 +7,10 @@ import urllib2 as urllib
 from nltk.corpus import stopwords
 import re
 
-api_key = "zKmzrkwmZsnp4UxN6wafDomUr"
-api_secret = "VTHof2Q2BgPAHodIY1zeoEKG8eKvt3LRmB8rFdZwH9Vtqjiw9t"
-access_token_key = "484501495-CqCJy1Ah9cqDkr5ewYjJKt82mR4wi8Iauru3dLRW"
-access_token_secret = "alS2kkV7tRTheBPnNLTkhVvJAEKcL2VGsDjfO7UFGTKF8"
+api_key = ""
+api_secret = ""
+access_token_key = ""
+access_token_secret = ""
 
 _debug = 0
 
